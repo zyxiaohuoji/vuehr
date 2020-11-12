@@ -1,12 +1,12 @@
 <template>
-<div>
-  test1
-</div>
+  <div>
+    员工账套设置
+  </div>
 </template>
 
 <script>
 export default {
-  name: "test1"
+name: "SalSobCfg"
 }
 </script>
 

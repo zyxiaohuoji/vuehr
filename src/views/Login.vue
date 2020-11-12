@@ -39,11 +39,9 @@
                   window.sessionStorage.setItem("user", JSON.stringify(resp.data));
                   this.$router.replace('/home');
 
-                  // alert(JSON.stringify(resp));
                 }
                 console.log(resp)
               });
-              // alert('submit!');
             } else {
               console.log('error submit!!');
               return false;

@@ -1,12 +1,12 @@
 <template>
-<div>
-  test2
-</div>
+  <div>
+    初始化数据库
+  </div>
 </template>
 
 <script>
 export default {
-  name: "test1"
+name: "SysInit"
 }
 </script>
 

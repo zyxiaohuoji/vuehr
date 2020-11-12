@@ -1,19 +1,16 @@
-# vuehr
+# 菜单项数据加载成功之后，在前端有几个可以存放的地方；
 
-## Project setup
-```
-npm install
-```
+1.sessionStorage
+2.localStorage
+3.vuex （状态管理）
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+# vuex 安装
+npm install vuex --save
 
-### Compiles and minifies for production
-```
-npm run build
-```
+# vuex 配置
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+# 2020-11-12 图标库使用 font-awesome
+# 安装
+npm install font-awesome
+# main.js 引入
+import 'font-awesome/css/font-awesome.min.css'
