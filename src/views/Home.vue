@@ -36,7 +36,7 @@
           <div class="homeWelcome" v-if="this.$router.currentRoute.path == '/home'">
             欢迎来到微人事!
           </div>
-          <router-view/>
+          <router-view class="homeRouterView"/>
         </el-main>
       </el-container>
     </el-container>
@@ -87,14 +87,17 @@
 </script>
 
 <style>
-.homeWelcome{
+.homeRouterView {
+  margin-top: 10px;
+}
+.homeWelcome {
   text-align: center;
   font-size: 30px;
   font-family: 华文楷体;
   color: #488fea;
   padding-top: 50px ;
 }
-.homeHeader{
+.homeHeader {
   background-color: #488fea;
   display: flex;
   align-items: center;
@@ -102,21 +105,21 @@
   padding: 0px 15px;
   box-sizing: border-box;
 }
-.homeHeader .title{
+.homeHeader .title {
   font-size: 30px;
   font-family: 楷体;
   color: #ffffff;
 }
-.homeHeader .userInfo{
+.homeHeader .userInfo {
   cursor: pointer;
 }
-.el-dropdown-link img{
+.el-dropdown-link img {
   width: 36px;
   height: 36px;
   border-radius: 18px;
   margin-left: 10px;
 }
-.el-dropdown-link{
+.el-dropdown-link {
   display: flex;
   align-items: center;
 }

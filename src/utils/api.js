@@ -42,7 +42,6 @@ let base = '';
 //登录默认是不支持json 格式的传参
 export const postKeyValueRequest = (url, params) => {
     let url01 = `${base}${url}`;
-    console.log(url01)
     return axios({
         method: 'post',
         url: url01,
