@@ -15,8 +15,8 @@
       <el-table
           :data="positions"
           border
-          @selection-change="handleSelectionChange">
           size="small"
+          @selection-change="handleSelectionChange"
           stripe
           style="width: 100%">
         <el-table-column
@@ -37,6 +37,13 @@
             prop="createDate"
             label="创建时间">
         </el-table-column>
+        <el-table-column label="是否启用" width="120">
+        <template slot-scope="scope">
+          <el-tag type="sucess" v-if="scope.row.enabled">已启用</el-tag>
+          <el-tag type="danger" v-else>未启用</el-tag>
+        </template>
+      </el-table-column>
+
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -56,8 +63,19 @@
         :visible.sync="dialogVisible"
         width="350px">
       <div>
-        <el-tag>职位名称</el-tag>
-        <el-input class="updatePosInput" v-model="updatePos.name" size="small"></el-input>
+        <div>
+          <el-tag>职位名称</el-tag>
+          <el-input class="updatePosInput" v-model="updatePos.name" size="small"></el-input>
+        </div>
+        <div style="margin-top: 15px;">
+          <el-tag>职位名称</el-tag>
+          <el-switch
+              v-model="updatePos.enabled"
+              active-text="启用"
+              inactive-text="禁用"
+              style="margin-left: 8px; margin-right: 5px;">
+          </el-switch>
+        </div>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="dialogVisible = false">取 消</el-button>
@@ -77,7 +95,8 @@ export default {
       },
       dialogVisible: false,
       updatePos: {
-        name: ''
+        name: '',
+        enabled: false
       },
       multipleSelection: [],
       positions:[]
