@@ -21,7 +21,8 @@ Vue.prototype.getRequest = getRequest;
 
 Vue.config.productionTip = false
 
-Vue.use(ElementUI)
+// 全局配置size 属性为 small
+Vue.use(ElementUI, {size: 'small'})
 
 router.beforeEach((to,from,next) => {
   if (to.path == '/'){
