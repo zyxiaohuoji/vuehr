@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { Message } from 'element-ui';
+import router from "@/router/router";
 
 /* axios 拦截器 */
 axios.interceptors.response.use(
@@ -18,10 +19,12 @@ axios.interceptors.response.use(
         if(error.response){
             if (error.response.status == 504 || error.response.status == 404){
                 Message.error({message: '服务器被吃了o (╯□╰) o'});
-            } else if (error.status == 403) {
+            } else if (error.response.status == 403) {
                 Message.error({message: '权限不足，请联系管理员!'});
-            } else if (error.status == 401) {
+            } else if (error.response.status == 401) {
                 Message.error({message: '尚未登录，请登录!'});
+                //没有登录跳转到登录页
+                router.replace("/");
             } else {
                 if (error.response.data.msg) {
                     Message.error({message: error.response.data.msg});
