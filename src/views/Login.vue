@@ -1,6 +1,15 @@
 <template>
   <div>
-    <el-form :rules="rules" ref="loginForm" :model="loginForm" class="loginContainer">
+    <el-form
+        :rules="rules"
+        ref="loginForm"
+        v-loading="loading"
+        element-loading-text="正在登陆……"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="rgba(0, 0, 0, 0.8)"
+        :model="loginForm"
+        class="loginContainer">
+
       <h3 class="loginTitle">系统登陆</h3>
       <el-form-item prop="username">
         <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="请输入用户名"></el-input>
@@ -19,6 +28,7 @@
         name: "Login",
         data(){
           return{
+            loading: false,
             loginForm:{
               username: 'admin',
               password: '123'
@@ -33,17 +43,17 @@
       methods:{
         submitLogin(){
           this.$refs.loginForm.validate((valid) => {
+            this.loading = true;
             if (valid) {
               this.postKeyValueRequest('/doLogin', this.loginForm).then(resp => {
+                this.loading = false;
                 if (resp) {
                   window.sessionStorage.setItem("user", JSON.stringify(resp.data));
                   this.$router.replace('/home');
-
                 }
-                console.log(resp)
               });
             } else {
-              console.log('error submit!!');
+              this.loading = false;
               return false;
             }
           });

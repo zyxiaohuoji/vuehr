@@ -13,6 +13,10 @@
     </div>
     <div class="posManaMain">
       <el-table
+          v-loading="loading"
+          element-loading-text="正在加载数据……"
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(0, 0, 0, 0.8)"
           :data="positions"
           border
           size="small"
@@ -90,6 +94,8 @@ export default {
   name: "PosMana",
   data(){
     return {
+
+      loading: false,
       pos: {
         name: ''
       },
@@ -185,7 +191,9 @@ export default {
     },
 
     initPositions() {
+      this.loading = true;
       this.getRequest("/system/basic/pos/").then(resp=>{
+        this.loading = false;
         if (resp) {
           this.positions = resp;
         }

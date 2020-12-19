@@ -19,9 +19,13 @@
     </div>
     <div style="margin-top: 10px;">
       <el-table
+          v-loading="loading"
+          element-loading-text="正在加载数据……"
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(0, 0, 0, 0.8)"
+          @selection-change="handleSelectionChange"
           :data="jls"
           border
-          @selection-change="handleSelectionChange"
           size="small"
           style="width: 95%">
         <el-table-column
@@ -126,6 +130,8 @@ export default {
   name: "JobLevelMana",
   data(){
     return {
+
+      loading: false,
       jl: {
         name: '',
         titleLevel: ''
@@ -225,7 +231,9 @@ export default {
     },
 
     initJls(){
+      this.loading = true;
       this.getRequest("/system/basic/joblevel/").then(resp=>{
+        this.loading = false;
         if (resp){
           this.jls = resp;
           this.jl = {
