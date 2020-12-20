@@ -179,10 +179,10 @@
             label="操作"
             align="center"
             width="180">
-          <template>
-            <el-button style="padding: 5px;" size="mini">编辑</el-button>
-            <el-button style="padding: 5px;" size="mini" type="primary">高级资料</el-button>
-            <el-button style="padding: 5px;" size="mini" type="danger">删除</el-button>
+          <template slot-scope="scope">
+            <el-button @click="showEditEmpView(scope.row)" style="padding: 5px;" size="mini">编辑</el-button>
+            <el-button @click="showEmpInfo" style="padding: 5px;" size="mini" type="primary">高级资料</el-button>
+            <el-button @click="deleteEmp(scope.row)" style="padding: 5px;" size="mini" type="danger">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -197,7 +197,8 @@
       </div>
     </div>
     <el-dialog
-        title="添加员工"
+        :title="title"
+        :before-close="handleClose"
         :visible.sync="dialogVisible"
         width="80%">
       <div>
@@ -500,34 +501,35 @@ export default {
     return {
 
       emp: {
-        // name: "zy",
-        // gender: "男",
-        // birthday: "1989-01-31",
-        // idCard: "421288198902011234",
-        // wedlock: "已婚",
-        // nationId: 1,
-        // nativePlace: "海南",
-        // politicId: 1,
-        // email: "chenjing@qq.com",
-        // phone: "18795556693",
-        // address: "海南省海口市美兰区",
-        // departmentId: 91,
-        // jobLevelId: 12,
-        // posId: 29,
-        // engageForm: "劳动合同",
-        // tiptopDegree: "高中",
-        // specialty: "市场营销",
-        // school: "武汉大学",
-        // beginDate: "2015-06-08",
-        // workState: "在职",
-        // workId: "00000002",
-        // contractTerm: 3.0,
-        // conversionTime: "2015-09-09",
-        // notWorkDate: "2015-09-09",
-        // beginContract: "2015-06-08",
-        // endContract: "2018-06-07",
-        // workAge: null
+        name: "zy",
+        gender: "男",
+        birthday: "1989-01-31",
+        idCard: "421288198902011234",
+        wedlock: "已婚",
+        nationId: 1,
+        nativePlace: "海南",
+        politicId: 1,
+        email: "chenjing@qq.com",
+        phone: "18795556693",
+        address: "海南省海口市美兰区",
+        departmentId: 91,
+        jobLevelId: 12,
+        posId: 29,
+        engageForm: "劳动合同",
+        tiptopDegree: "高中",
+        specialty: "市场营销",
+        school: "武汉大学",
+        beginDate: "2015-06-08",
+        workState: "在职",
+        workId: "00000002",
+        contractTerm: 3.0,
+        conversionTime: "2015-09-09",
+        notWorkDate: "2015-09-09",
+        beginContract: "2015-06-08",
+        endContract: "2018-06-07",
+        workAge: null
       },
+      title: "添加员工",
       allDeps: [],
       inputDepName: '',
       nations: [],
@@ -595,17 +597,89 @@ export default {
   },
   methods:{
 
+    emptyEmp() {
+      this.emp = {
+        name: "",
+        gender: "",
+        birthday: "",
+        idCard: "",
+        wedlock: "",
+        nationId: null,
+        nativePlace: "",
+        politicId: null,
+        email: "",
+        phone: "",
+        address: "",
+        departmentId: null,
+        jobLevelId: null,
+        posId: null,
+        engageForm: "",
+        tiptopDegree: "",
+        specialty: "",
+        school: "",
+        beginDate: "",
+        workState: "",
+        workId: "",
+        contractTerm: null,
+        conversionTime: "",
+        notWorkDate: "",
+        beginContract: "",
+        endContract: "",
+        workAge: null
+      }
+      this.inputDepName = '';
+    },
+
+    showEditEmpView(data) {
+      this.title = '编辑员工信息';
+      this.emp = data;
+      this.inputDepName = data.department.name;
+      this.dialogVisible = true;
+    },
+
+    deleteEmp(data) {
+      this.$confirm('此操作将永久删除【' + data.name + '】, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteRequest("/employee/basic/" + data.id).then(resp=>{
+          if (resp) {
+            this.initEmps();
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
+    },
+
     doAddEmp() {
-      this.$refs['empForm'].validate(valid=>{
-        if (valid){
-          this.postRequest("/emp/basic/", this.emp).then(resp=>{
-            if (resp){
-              this.dialogVisible = false;
-              this.initEmps();
-            }
-          })
-        }
-      })
+      if (this.emp.id) {
+        this.$refs['empForm'].validate(valid=>{
+          if (valid){
+            this.putRequest("/employee/basic/", this.emp).then(resp=>{
+              if (resp){
+                this.dialogVisible = false;
+                this.initEmps();
+              }
+            })
+          }
+        })
+      } else {
+        this.$refs['empForm'].validate(valid=>{
+          if (valid){
+            this.postRequest("/employee/basic/", this.emp).then(resp=>{
+              if (resp){
+                this.dialogVisible = false;
+                this.initEmps();
+              }
+            })
+          }
+        })
+      }
     },
 
     handleDepNodeClick(data){
@@ -619,7 +693,7 @@ export default {
     },
 
     getMaxWorkId() {
-      this.getRequest("/emp/basic/maxWorkId").then(resp=>{
+      this.getRequest("/employee/basic/maxWorkId").then(resp=>{
         if (resp) {
           this.emp.workId = resp.data;
         }
@@ -628,7 +702,7 @@ export default {
 
     initPositions(){
       if (!window.sessionStorage.getItem("positions")){
-        this.getRequest("/emp/basic/positions").then(resp=>{
+        this.getRequest("/employee/basic/positions").then(resp=>{
           if (resp) {
             this.positions = resp;
             window.sessionStorage.setItem("positions", JSON.stringify(resp));
@@ -642,7 +716,7 @@ export default {
     initData() {
 
       if (!window.sessionStorage.getItem("nations")){
-        this.getRequest("/emp/basic/nations").then(resp=>{
+        this.getRequest("/employee/basic/nations").then(resp=>{
           if (resp) {
             this.nations = resp;
             window.sessionStorage.setItem("nations", JSON.stringify(resp));
@@ -653,7 +727,7 @@ export default {
       }
 
       if (!window.sessionStorage.getItem("politicsStatus")){
-        this.getRequest("/emp/basic/politicsstatus").then(resp=>{
+        this.getRequest("/employee/basic/politicsstatus").then(resp=>{
           if (resp) {
             this.politicsStatus = resp;
             window.sessionStorage.setItem("politicsStatus", JSON.stringify(resp));
@@ -664,7 +738,7 @@ export default {
       }
 
       if (!window.sessionStorage.getItem("jobLevels")) {
-        this.getRequest("/emp/basic/joblevels").then(resp => {
+        this.getRequest("/employee/basic/joblevels").then(resp => {
           if (resp) {
             this.jobLevels = resp;
           }
@@ -674,7 +748,7 @@ export default {
       }
 
       if (!window.sessionStorage.getItem("deps")){
-        this.getRequest("/emp/basic/deps").then(resp=>{
+        this.getRequest("/employee/basic/deps").then(resp=>{
           if (resp) {
             this.allDeps = resp;
             window.sessionStorage.setItem("deps", JSON.stringify(resp));
@@ -685,7 +759,16 @@ export default {
       }
     },
 
+    handleClose(done) {
+      if (this.popVisible){
+        this.popVisible = false;
+      }
+      done();
+    },
+
     showAddEmpView() {
+      this.title = "添加员工"
+      this.emptyEmp();
       this.initPositions();
       this.getMaxWorkId();
       this.dialogVisible = true;
@@ -703,7 +786,7 @@ export default {
 
     initEmps(){
       this.loading = true;
-      this.getRequest("/emp/basic/?page=" + this.page +
+      this.getRequest("/employee/basic/?page=" + this.page +
           "&size=" + this.size + "&keyword="+ this.keyword).then(resp=>{
         this.loading = false;
         if (resp){

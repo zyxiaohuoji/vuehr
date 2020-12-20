@@ -114,6 +114,9 @@ export default {
         let d = deps[i];
         if (d.id == dep.parentId){
           d.children=d.children.concat(dep);
+          if (d.children.length > 0) {
+            d.parent = true;
+          }
           return ;
         } else {
           this.addDep2Deps(d.children, dep);
