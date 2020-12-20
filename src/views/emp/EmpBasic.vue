@@ -335,7 +335,7 @@
                         size="mini"
                         style="font-size: 10px;"
                         :data="allDeps"
-                        default-expand-all="true"
+                        default-expand-all="false"
                         :props="defaultProps"
                         @node-click="handleDepNodeClick">
 

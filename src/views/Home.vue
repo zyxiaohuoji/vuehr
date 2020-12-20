@@ -66,7 +66,8 @@
                   type: 'warning'
                 }).then(() => {
                   this.getRequest("/logout") ;
-                  window.sessionStorage.removeItem("user");
+                  // window.sessionStorage.removeItem("user");
+                  window.sessionStorage.clear();
                   this.$store.commit('initRoutes', []);
                   this.$router.replace("/");
 

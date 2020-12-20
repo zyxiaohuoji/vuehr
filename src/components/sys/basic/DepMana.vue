@@ -138,21 +138,24 @@ export default {
       this.dialogVisible = true;
     },
 
-    removeDepFromDeps(deps, id) {
+    removeDepFromDeps(p, deps, id) {
       for (let i = 0; i < deps.length; i++) {
         let d = deps[i];
         if (d.id == id){
           deps.splice(i, 1);
+          if (deps.length == 0) {
+            p.parent = false;
+          }
           return ;
         } else {
-          this.removeDepFromDeps(d.children,  id);
+          this.removeDepFromDeps(d, d.children,  id);
         }
       }
     },
 
     deleteDep(data){
       if (data.parent){
-        this.$message.error("父部门删除失败");
+        this.$message.error("该部门为父部门，删除失败");
       } else {
         this.$confirm('此操作将永久删除【' + data.name + '】部门, 是否继续?', '提示', {
           confirmButtonText: '确定',
@@ -161,7 +164,7 @@ export default {
         }).then(() => {
           this.deleteRequest("/system/basic/department/"+ data.id).then(resp=>{
             if (resp) {
-              this.removeDepFromDeps(this.deps, data.id)
+              this.removeDepFromDeps(null, this.deps, data.id)
             }
           })
         }).catch(() => {
