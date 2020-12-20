@@ -19,12 +19,19 @@
         </el-button>
       </div>
       <div>
-        <el-button type="success">
-          <i class="fa fa-level-up" aria-hidden="true"></i>
-          导入数据
-        </el-button>
-        <el-button type="success">
-          <i class="fa fa-level-down" aria-hidden="true"></i>
+        <el-upload
+            :show-file-list="false"
+            :before-upload="beforeUpload"
+            :on-success="onSuccess"
+            :on-error="onError"
+            :disabled="importDataDisabled"
+            style="display: inline-flex;margin-right: 8px"
+            action="/employee/basic/import">
+          <el-button :disabled="importDataDisabled" type="success" :icon="importDataBtnIcon">
+            {{importDataBtnText}}
+          </el-button>
+        </el-upload>
+        <el-button type="success" @click="exportData" icon="el-icon-download">
           导出数据
         </el-button>
         <el-button icon="el-icon-plus" type="primary" @click="showAddEmpView">
@@ -181,7 +188,7 @@
             width="180">
           <template slot-scope="scope">
             <el-button @click="showEditEmpView(scope.row)" style="padding: 5px;" size="mini">编辑</el-button>
-            <el-button @click="showEmpInfo" style="padding: 5px;" size="mini" type="primary">高级资料</el-button>
+            <el-button style="padding: 5px;" size="mini" type="primary">高级资料</el-button>
             <el-button @click="deleteEmp(scope.row)" style="padding: 5px;" size="mini" type="danger">删除</el-button>
           </template>
         </el-table-column>
@@ -520,7 +527,6 @@ export default {
         specialty: "市场营销",
         school: "武汉大学",
         beginDate: "2015-06-08",
-        workState: "在职",
         workId: "00000002",
         contractTerm: 3.0,
         conversionTime: "2015-09-09",
@@ -530,6 +536,9 @@ export default {
         workAge: null
       },
       title: "添加员工",
+      importDataBtnText: '导入数据',
+      importDataBtnIcon: 'el-icon-upload2',
+      importDataDisabled: false,
       allDeps: [],
       inputDepName: '',
       nations: [],
@@ -544,7 +553,7 @@ export default {
         children: 'children',
         label: 'name'
       },
-      rules: {
+       rules: {
         name: [{required: true, message: '请输入用户名', trigger: 'blur'}],
         gender: [{required: true, message: '请输入性别', trigger: 'blur'}],
         birthday: [{required: true, message: '请输入出生日期', trigger: 'blur'}],
@@ -572,7 +581,6 @@ export default {
         specialty: [{required: true, message: '请输入专业', trigger: 'blur'}],
         school: [{required: true, message: '请输入毕业院校', trigger: 'blur'}],
         beginDate: [{required: true, message: '请输入入职日期', trigger: 'blur'}],
-        workState: [{required: true, message: '请输入工作状态', trigger: 'blur'}],
         workId: [{required: true, message: '请输入工号', trigger: 'blur'}],
         contractTerm: [{required: true, message: '请输入合同期限', trigger: 'blur'}],
         conversionTime: [{required: true, message: '请输入转正日期', trigger: 'blur'}],
@@ -597,6 +605,37 @@ export default {
   },
   methods:{
 
+    onError(err, file, fileList) {
+      this.importDataBtnText = '导入数据';
+      this.importDataBtnIcon = 'el-icon-upload2';
+      this.importDataDisabled = false;
+      this.$message({
+        type: 'warning',
+        message: '导入失败!'
+      });
+    },
+
+    onSuccess(response, file, fileList) {
+      this.importDataBtnText = '导入数据';
+      this.importDataBtnIcon = 'el-icon-upload2';
+      this.importDataDisabled = false;
+      this.$message({
+        type: 'success',
+        message: '导入成功!'
+      });
+      this.initEmps();
+    },
+
+    beforeUpload() {
+      this.importDataBtnText = '正在导入';
+      this.importDataBtnIcon = 'el-icon-loading';
+      this.importDataDisabled = true;
+    },
+
+    exportData() {
+      window.open("/employee/basic/export", '_parent');
+    },
+
     emptyEmp() {
       this.emp = {
         name: "",
@@ -618,7 +657,6 @@ export default {
         specialty: "",
         school: "",
         beginDate: "",
-        workState: "",
         workId: "",
         contractTerm: null,
         conversionTime: "",
