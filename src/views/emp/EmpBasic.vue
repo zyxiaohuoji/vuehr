@@ -199,9 +199,12 @@
     <el-dialog
         title="添加员工"
         :visible.sync="dialogVisible"
-        width="70%">
+        width="80%">
       <div>
-        <el-form>
+        <el-form
+            ref="empForm"
+            :model="emp"
+            :rules="rules">
           <el-row :gutter="20">
             <el-col :span="6">
               <el-form-item size="mini" label="姓名:" prop="name">
@@ -238,10 +241,10 @@
               <el-form-item size="mini" label="政治面貌:" prop="politicId">
                 <el-select v-model="emp.politicId" placeholder="政治面貌" style="width: 180px;">
                   <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
+                      v-for="item in politicsStatus"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
                   </el-option>
                 </el-select>
               </el-form-item>
@@ -253,10 +256,10 @@
               <el-form-item size="mini" label="民族:" prop="nationId">
                 <el-select v-model="emp.nationId" placeholder="民族" style="width: 150px;">
                   <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
+                      v-for="item in nations"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
                   </el-option>
                 </el-select>
               </el-form-item>
@@ -298,40 +301,57 @@
               <el-form-item size="mini" label="职位:" prop="posId">
                 <el-select v-model="emp.posId" placeholder="职位" style="width: 150px;">
                   <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
+                      v-for="item in positions"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
                   </el-option>
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="5">
-              <el-form-item size="mini" label="职称:" prop="jobLevel">
-                <el-select v-model="emp.jobLevel" placeholder="职称" style="width: 148px;">
+              <el-form-item size="mini" label="职称:" prop="jobLevelId">
+                <el-select v-model="emp.jobLevelId" placeholder="职称" style="width: 148px;">
                   <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
+                      v-for="item in jobLevels"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
                   </el-option>
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="6">
               <el-form-item size="mini" label="所属部门:" prop="departmentId">
-                <el-input
-                    prefix-icon="el-icon-edit"
-                    v-model="emp.departmentId"
-                    style="width: 150px;"
-                    placeholder="所属部门">
-                </el-input>
+                <el-popover
+                    size="mini"
+                    placement="right"
+                    title="请选择部门"
+                    width="200"
+                    trigger="manual"
+                    v-model="popVisible">
+                  <div>
+                    <el-tree
+                        size="mini"
+                        style="font-size: 10px;"
+                        :data="allDeps"
+                        default-expand-all="true"
+                        :props="defaultProps"
+                        @node-click="handleDepNodeClick">
+
+                    </el-tree>
+
+                  </div>
+                  <div class="department-input" slot="reference" @click="showDepView">
+                  {{inputDepName}}
+                  </div>
+                </el-popover>
               </el-form-item>
             </el-col>
             <el-col :span="7">
               <el-form-item size="mini" label="电话号码:" prop="phone">
                 <el-input
-                    prefix-icon="el-icon-edit"
+                    prefix-icon="el-icon-phone"
                     v-model="emp.phone"
                     style="width: 180px;"
                     placeholder="电话号码">
@@ -345,6 +365,7 @@
               <el-form-item size="mini" label="工号:" prop="workId">
                 <el-input
                     v-model="emp.workId"
+                    disabled
                     style="width: 150px;">
                 </el-input>
               </el-form-item>
@@ -353,10 +374,10 @@
               <el-form-item size="mini" label="学历:" prop="tiptopDegree">
                 <el-select v-model="emp.tiptopDegree" placeholder="学历" style="width: 148px;">
                   <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
+                      v-for="item in tiptopDegrees"
+                      :key="item"
+                      :label="item"
+                      :value="item">
                   </el-option>
                 </el-select>
               </el-form-item>
@@ -465,7 +486,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
     <el-button size="mini" @click="dialogVisible = false">取 消</el-button>
-    <el-button size="mini" type="primary" @click="dialogVisible = false">确 定</el-button>
+    <el-button size="mini" type="primary" @click="doAddEmp">确 定</el-button>
   </span>
     </el-dialog>
   </div>
@@ -477,62 +498,91 @@ export default {
 
   data() {
     return {
-      options: [
-          {
-            value: '选项1',
-            label: '黄金糕'
-          }, {
-            value: '选项2',
-            label: '双皮奶'
-          }, {
-            value: '选项3',
-            label: '蚵仔煎'
-          }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
-        }
-      ],
 
       emp: {
-        name: "zy",
-        gender: "男",
-        birthday: "1989-01-31",
-        idCard: "421288198902011234",
-        wedlock: "已婚",
-        nationId: 1,
-        nativePlace: "海南",
-        politicId: 1,
-        email: "chenjing@qq.com",
-        phone: "18795556693",
-        address: "海南省海口市美兰区",
-        departmentId: 91,
-        jobLevelId: 12,
-        posId: 29,
-        engageForm: "劳动合同",
-        tiptopDegree: "高中",
-        specialty: "市场营销",
-        school: "武汉大学",
-        beginDate: "2015-06-08",
-        workState: "在职",
-        workId: "00000002",
-        contractTerm: 3.0,
-        conversionTime: "2015-09-09",
-        notWorkDate: "2015-09-09",
-        beginContract: "2015-06-08",
-        endContract: "2018-06-07",
-        workAge: null,
-        nation: null,
-        politicsStatus: null,
-        department: null,
-        jobLevel: null,
-        position: null
+        // name: "zy",
+        // gender: "男",
+        // birthday: "1989-01-31",
+        // idCard: "421288198902011234",
+        // wedlock: "已婚",
+        // nationId: 1,
+        // nativePlace: "海南",
+        // politicId: 1,
+        // email: "chenjing@qq.com",
+        // phone: "18795556693",
+        // address: "海南省海口市美兰区",
+        // departmentId: 91,
+        // jobLevelId: 12,
+        // posId: 29,
+        // engageForm: "劳动合同",
+        // tiptopDegree: "高中",
+        // specialty: "市场营销",
+        // school: "武汉大学",
+        // beginDate: "2015-06-08",
+        // workState: "在职",
+        // workId: "00000002",
+        // contractTerm: 3.0,
+        // conversionTime: "2015-09-09",
+        // notWorkDate: "2015-09-09",
+        // beginContract: "2015-06-08",
+        // endContract: "2018-06-07",
+        // workAge: null
+      },
+      allDeps: [],
+      inputDepName: '',
+      nations: [],
+      jobLevels: [],
+      politicsStatus: [],
+      positions: [],
+      tiptopDegrees: [
+          '本科', '大专', '硕士', '博士',
+          '高中', '初中', '小学', '其他'
+      ],
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      },
+      rules: {
+        name: [{required: true, message: '请输入用户名', trigger: 'blur'}],
+        gender: [{required: true, message: '请输入性别', trigger: 'blur'}],
+        birthday: [{required: true, message: '请输入出生日期', trigger: 'blur'}],
+        idCard: [{required: true, message: '请输入身份证号码', trigger: 'blur'}, {
+          pattern: /(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/,
+          message: '身份证号码格式不正确',
+          trigger: 'blur'
+        }],
+        wedlock: [{required: true, message: '请输入婚姻状况', trigger: 'blur'}],
+        nationId: [{required: true, message: '请输入您组', trigger: 'blur'}],
+        nativePlace: [{required: true, message: '请输入籍贯', trigger: 'blur'}],
+        politicId: [{required: true, message: '请输入政治面貌', trigger: 'blur'}],
+        email: [{required: true, message: '请输入邮箱地址', trigger: 'blur'}, {
+          type: 'email',
+          message: '邮箱格式不正确',
+          trigger: 'blur'
+        }],
+        phone: [{required: true, message: '请输入电话号码', trigger: 'blur'}],
+        address: [{required: true, message: '请输入员工地址', trigger: 'blur'}],
+        departmentId: [{required: true, message: '请输入部门名称', trigger: 'blur'}],
+        jobLevelId: [{required: true, message: '请输入职称', trigger: 'blur'}],
+        posId: [{required: true, message: '请输入职位', trigger: 'blur'}],
+        engageForm: [{required: true, message: '请输入聘用形式', trigger: 'blur'}],
+        tiptopDegree: [{required: true, message: '请输入学历', trigger: 'blur'}],
+        specialty: [{required: true, message: '请输入专业', trigger: 'blur'}],
+        school: [{required: true, message: '请输入毕业院校', trigger: 'blur'}],
+        beginDate: [{required: true, message: '请输入入职日期', trigger: 'blur'}],
+        workState: [{required: true, message: '请输入工作状态', trigger: 'blur'}],
+        workId: [{required: true, message: '请输入工号', trigger: 'blur'}],
+        contractTerm: [{required: true, message: '请输入合同期限', trigger: 'blur'}],
+        conversionTime: [{required: true, message: '请输入转正日期', trigger: 'blur'}],
+        notworkDate: [{required: true, message: '请输入离职日期', trigger: 'blur'}],
+        beginContract: [{required: true, message: '请输入合同起始日期', trigger: 'blur'}],
+        endContract: [{required: true, message: '请输入合同结束日期', trigger: 'blur'}],
+        workAge: [{required: true, message: '请输入工龄', trigger: 'blur'}]
       },
       dialogVisible: false,
       emps: [],
       loading: false,
+      popVisible: false,
       keyword: '',
       total: 0,
       page: 1,
@@ -541,10 +591,103 @@ export default {
   },
   mounted() {
     this.initEmps();
+    this.initData();
   },
   methods:{
 
+    doAddEmp() {
+      this.$refs['empForm'].validate(valid=>{
+        if (valid){
+          this.postRequest("/emp/basic/", this.emp).then(resp=>{
+            if (resp){
+              this.dialogVisible = false;
+              this.initEmps();
+            }
+          })
+        }
+      })
+    },
+
+    handleDepNodeClick(data){
+      this.inputDepName = data.name;
+      this.emp.departmentId = data.id;
+      this.popVisible = !this.popVisible;
+    },
+
+    showDepView() {
+      this.popVisible = !this.popVisible;
+    },
+
+    getMaxWorkId() {
+      this.getRequest("/emp/basic/maxWorkId").then(resp=>{
+        if (resp) {
+          this.emp.workId = resp.data;
+        }
+      })
+    },
+
+    initPositions(){
+      if (!window.sessionStorage.getItem("positions")){
+        this.getRequest("/emp/basic/positions").then(resp=>{
+          if (resp) {
+            this.positions = resp;
+            window.sessionStorage.setItem("positions", JSON.stringify(resp));
+          }
+        })
+      } else {
+        this.positions = JSON.parse(window.sessionStorage.getItem("positions"));
+      }
+    },
+
+    initData() {
+
+      if (!window.sessionStorage.getItem("nations")){
+        this.getRequest("/emp/basic/nations").then(resp=>{
+          if (resp) {
+            this.nations = resp;
+            window.sessionStorage.setItem("nations", JSON.stringify(resp));
+          }
+        })
+      } else {
+        this.nations = JSON.parse(window.sessionStorage.getItem("nations"));
+      }
+
+      if (!window.sessionStorage.getItem("politicsStatus")){
+        this.getRequest("/emp/basic/politicsstatus").then(resp=>{
+          if (resp) {
+            this.politicsStatus = resp;
+            window.sessionStorage.setItem("politicsStatus", JSON.stringify(resp));
+          }
+        })
+      } else {
+        this.politicsStatus = JSON.parse(window.sessionStorage.getItem("politicsStatus"));
+      }
+
+      if (!window.sessionStorage.getItem("jobLevels")) {
+        this.getRequest("/emp/basic/joblevels").then(resp => {
+          if (resp) {
+            this.jobLevels = resp;
+          }
+        })
+      } else {
+        this.jobLevels = JSON.parse(window.sessionStorage.getItem("jobLevels"));
+      }
+
+      if (!window.sessionStorage.getItem("deps")){
+        this.getRequest("/emp/basic/deps").then(resp=>{
+          if (resp) {
+            this.allDeps = resp;
+            window.sessionStorage.setItem("deps", JSON.stringify(resp));
+          }
+        })
+      } else {
+        this.allDeps = JSON.parse(window.sessionStorage.getItem("deps"));
+      }
+    },
+
     showAddEmpView() {
+      this.initPositions();
+      this.getMaxWorkId();
       this.dialogVisible = true;
     },
 
@@ -574,5 +717,16 @@ export default {
 </script>
 
 <style>
-
+.department-input {
+  width: 148px;
+  height: 26px;
+  padding-left: 15px;
+  box-sizing: border-box;
+  align-content: center;
+  display: inline-flex;
+  border: 1px solid #dedede;
+  font-size: 12px;
+  border-radius: 5px;
+  cursor: pointer
+}
 </style>
