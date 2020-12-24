@@ -3,17 +3,24 @@
     <el-container>
       <el-header class="homeHeader">
         <div class="title">微人事</div>
-        <el-dropdown class="userInfo" @command="commandHandler">
+        <div>
+          <el-button icon="el-icon-bell"
+                     size="normal"
+                     style="margin-right: 15px; color: #000000"
+                     @click="gotChat"
+                     type="text"></el-button>
+          <el-dropdown class="userInfo" @command="commandHandler">
           <span class="el-dropdown-link">
             {{user.name}}
             <i><img :src="user.userface" alt=""></i>
           </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="userinfo">个人中心</el-dropdown-item>
-            <el-dropdown-item command="setting">设置</el-dropdown-item>
-            <el-dropdown-item command="logout" divided>注销登录</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="userinfo">个人中心</el-dropdown-item>
+              <el-dropdown-item command="setting">设置</el-dropdown-item>
+              <el-dropdown-item command="logout" divided>注销登录</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
       </el-header>
       <el-container>
         <el-aside width="200px">
@@ -58,31 +65,35 @@
             }
         },
         methods:{
-            commandHandler(cmd) {
-              if (cmd == 'logout') {
-                this.$confirm('此操作将注销登录, 是否继续?', '提示', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                  type: 'warning'
-                }).then(() => {
-                  this.getRequest("/logout") ;
-                  // window.sessionStorage.removeItem("user");
-                  window.sessionStorage.clear();
-                  this.$store.commit('initRoutes', []);
-                  this.$router.replace("/");
+          gotChat(){
+            this.$router.push("/chat");
+          },
 
-                }).catch(() => {
-                  this.$message({
-                    type: 'info',
-                    message: '已取消操作'
-                  });
+          commandHandler(cmd) {
+            if (cmd == 'logout') {
+              this.$confirm('此操作将注销登录, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                this.getRequest("/logout") ;
+                // window.sessionStorage.removeItem("user");
+                window.sessionStorage.clear();
+                this.$store.commit('initRoutes', []);
+                this.$router.replace("/");
+
+              }).catch(() => {
+                this.$message({
+                  type: 'info',
+                  message: '已取消操作'
                 });
-              } else if (cmd == 'userinfo') {
+              });
+            } else if (cmd == 'userinfo') {
 
-              } else if (cmd == 'setting') {
+            } else if (cmd == 'setting') {
 
-              }
             }
+          }
         }
     }
 </script>

@@ -1,5 +1,9 @@
 let proxyObj = {};
-proxyObj['/']={
+proxyObj['/ws'] = {
+   ws: true,
+   target: "ws://localhost:8090"
+};
+proxyObj['/'] = {
     ws: false,
     target: 'http://localhost:8090',
     changeOrigin: true,
@@ -8,7 +12,7 @@ proxyObj['/']={
     }
 }
 
-module.exports={
+module.exports = {
     devServer: {
         host: 'localhost',
         port: 8080,
